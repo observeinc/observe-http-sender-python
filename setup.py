@@ -7,7 +7,7 @@ with open("config/requirements.txt") as requirement_file:
     requirements = requirement_file.read().split()
 
 # Parse version number from __init__.py:
-with open('./__init__.py') as init_file:
+with open('observe-http-sender/__init__.py') as init_file:
     info = {}
     for line in init_file:
         if line.startswith('version'):
@@ -27,7 +27,7 @@ setup(name='observe-http-sender',
     long_description=readme(),
     long_description_content_type='text/markdown',
     author='Observe Inc',
-    packages=find_packages(include=['ObserveHttpSender']),
+    packages=find_packages(include=['observe-http-sender']),
     url='TBD',
     download_url='TBD',
     py_modules=['ObserveHttpSender'],

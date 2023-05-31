@@ -4,3 +4,4 @@
 
 #Python
 *site-packages
+*.egg-info
