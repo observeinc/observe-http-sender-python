@@ -5,3 +5,4 @@
 #Python
 *site-packages
 *.egg-info
+__pycache__
