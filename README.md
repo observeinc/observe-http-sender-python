@@ -21,20 +21,20 @@ You will need to put this with any other code and import the class as needed.
 
 Once installed you can start python try the following.
 
-* Python Test:
+#### Python Test:
 
     from observe_http_sender import ObserveHttpSender 
     help(ObserveHttpSender)
 
 ### Getting Started:
 
-* The arguments needed to initialize an Observer:
+The arguments needed to initialize an Observer:
 
-    OBSERVE_CUSTOMER -- The Observe customer ID - required
-    OBSERVE_TOKEN -- The configured Datastream API Token - required
-    OBSERVE_DOMAIN -- The observe instance domain. Defaults to observeinc.com - optional
+* OBSERVE_CUSTOMER -- The Observe customer ID - required
+* OBSERVE_TOKEN -- The configured Datastream API Token - required
+* OBSERVE_DOMAIN -- The observe instance domain. Defaults to observeinc.com - optional
 
-* Python Usage:
+#### Python Usage:
 
     from observe_http_sender import ObserveHttpSender
 
