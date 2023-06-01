@@ -144,7 +144,7 @@ class ObserveHttpSender:
    Arguments:
         OBSERVE_CUSTOMER -- The Observe customer ID - required
         OBSERVE_TOKEN -- The configured Datastream API Token - required
-        OBSERVE_DOMAIN -- The observe instance domain. Defaults to observeinc.com - optional
+        OBSERVE_DOMAIN -- The observe instance domain. Defaults to observeinc - optional
 
     Functions:
         check_connectivity() returns:(bool) - returns if configured Observe API instance is reachable
@@ -205,7 +205,7 @@ class ObserveHttpSender:
 
         return()
 
-    def __init__(self,customer_id,token,observer_instance="observeinc.com"):
+    def __init__(self,customer_id,token,observer_instance="observeinc"):
         """
         The constructor for the ObserveHttpSender class.
   

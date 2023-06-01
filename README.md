@@ -32,7 +32,7 @@ The arguments needed to initialize an Observer:
 
 * OBSERVE_CUSTOMER -- The Observe customer ID - required
 * OBSERVE_TOKEN -- The configured Datastream API Token - required
-* OBSERVE_DOMAIN -- The observe instance domain. Defaults to observeinc.com - optional
+* OBSERVE_DOMAIN -- The observe instance domain. Defaults to observeinc - optional
 
 #### Python Usage:
 
