@@ -17,7 +17,7 @@ You will need to put this with any other code and import the class as needed.
 
 ### Usage: With pip3
 
-    pip3 install TBD
+    git commit -m "docs: starcher/added tip app unified intelligence list usage"
 
 Once installed you can start python try the following.
 
