@@ -306,7 +306,7 @@ class ObserveHttpSender:
         headers = dict()
         headers["Authorization"] = "Bearer %s" % (self.auth_token)
         headers["Content-Type"] = "application/json"
-        headers["User-Agent"] = "ObserveInc-htttp-sender/1.0 (Python)"
+        headers["User-Agent"] = "ObserveInc-http-sender/1.0 (Python)"
         return (headers)
 
     def get_pop_empty_fields(self):
