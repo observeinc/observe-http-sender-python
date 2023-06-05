@@ -2,7 +2,7 @@
     Observer observation submission class to HTTP endpoint
 """
 
-__version__ = "1.0"
+__version__ = "1.1.0"
 
 import json
 import logging
@@ -152,6 +152,9 @@ class ObserveHttpSender:
         flush() returns(none) - required call before exiting your code to flush any remaining batched data
         set_pop_empty_fields(bool) - returns(none) - accepts bool value to control if empty/null fields are removed. Default is True.
         get_pop_empty_fields() - returns(bool) - displays current value controlling removing empty/null fields
+        set_payload_json_format(bool) - returns(none) - accepts bool value to control payload format is application/json (True) or text/plain (False). Default is True.
+        get_payload_json_format() - returns(bool) - displays current value controlling removing empty/null fields
+        
     
     Example Initialization:
         from observe_http_sender import ObserveHttpSender 
@@ -195,11 +198,24 @@ class ObserveHttpSender:
 
             while not work_queue.empty():
                 try:
-                    payload = json.dumps(await work_queue.get(),default=str)
-                    if payload:
-                        async with retry_client.post(url,headers=self.observer_headers,retry_options=retry_options,data=payload) as response:
+                    payload = await work_queue.get()
+                    self.log.debug("Payload JSON Mode:{0}".format(self._payload_mode_json))
+                   
+                    if self._payload_mode_json:
+                         # If True payload is expected to be form application/json
+                        payload_string = json.dumps(payload,default=str)
+                    else:
+                         # If False payload is expected to be form text/plain
+                        payload_string = ''
+                        for row in payload:
+                            payload_string = payload_string+'{0}\n'.format(row)
+                        
+                    if payload_string:
+                        async with retry_client.post(url,headers=self.observer_headers,retry_options=retry_options,data=payload_string) as response:
                             await response.text()               
                         await retry_client.close()
+                        if response.status == 400:
+                            raise(Exception(response.text))
                 except Exception as e:
                     self.log.exception(e)
 
@@ -231,6 +247,9 @@ class ObserveHttpSender:
 
         # Set pop empty fields to default True
         self._pop_empty_fields = True
+
+        # Set payload application/json mode
+        self._payload_mode_json = True
 
         # Set HTTP Controls
         self.http_raise_for_status = False
@@ -305,7 +324,10 @@ class ObserveHttpSender:
 
         headers = dict()
         headers["Authorization"] = "Bearer %s" % (self.auth_token)
-        headers["Content-Type"] = "application/json"
+        if self._payload_mode_json:
+            headers["Content-Type"] = "application/json"
+        else:
+            headers["Content-Type"] = "text/plain"
         headers["User-Agent"] = "ObserveInc-http-sender/1.0 (Python)"
         return (headers)
 
@@ -325,6 +347,8 @@ class ObserveHttpSender:
     def set_pop_empty_fields(self,value=True):
         """Set pop empty fields mode (bool).
 
+        This mode only works for payload mode (True) application/json. It is ignored for payload mode (False) text/plain.
+
         Parameters:
                 value (bool): Sets if empty/null fields are removed from the payload before posting.
         Returns:
@@ -334,6 +358,36 @@ class ObserveHttpSender:
 
         self._pop_empty_fields = value
         self.log.info("Observer Mode Set: pop_empty_fields={0}".format(value))
+
+    def get_payload_json_format(self):
+        """Get payload plain JSON mode (bool).
+        
+            Default value is True - payload is expected to be a application/json dict.
+            Value: False - payload is expected to be text/plain.
+
+            Parameters:
+                none
+            Returns:
+                bool: True/False control if payload is plain JSON dict.
+                
+        """
+
+        return (self._payload_mode_json)
+    
+    def set_payload_json_format(self,value=True):
+        """Set payload plain JSON mode (bool).
+
+        Parameters:
+                value (bool): Sets if empty/null fields are removed from the payload before posting.
+                * Value: True - payload is expected to be a application/json dict.
+                * Value: False - payload is expected to be text/plain.
+        Returns:
+                none
+
+        """
+
+        self._payload_mode_json = value
+        self.log.info("Observer Mode Set: payload_mode_json={0}".format(value))
 
     def check_connectivity(self):
         """Checks connectivity to the Observe API.
@@ -482,8 +536,8 @@ class ObserveHttpSender:
            Queue will auto flush as needed.
         """
 
-        # Pop empty fields if feature enabled.
-        if self._pop_empty_fields:
+        # Pop empty fields if feature enabled and Payload mode JSON is True.
+        if self._pop_empty_fields and self._payload_mode_json:
             payload = {k:payload.get(k) for k,v in payload.items() if v}
 
         # Convert payload to string of json.

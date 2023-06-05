@@ -1,6 +1,6 @@
 # Python Class for Sending Data to ObserveInc HTTP Endpoint
 
-Version/Date: 1.0 2023-05-30
+Version/Date: 1.1.0 2023-06-05
 
 ## Description:
 
@@ -61,10 +61,11 @@ You may set a different logging level for the `ObserveHttpSender` class.
 * The `check_connectivity` method that is optional but recommended before attempting to submit large amounts of data to Observe. See example.py for use and docstrings on the method for details.
 * You MUST call the method `flush` before your code completes to ensure all remaining non batch posted data is sent to Observe.
 * Methods `get_pop_empty_fields` and `set_pop_empty_fields`. Defaults to True to remove empty/null fields from payloads to save ingestion cost.
+* Methods `get_payload_json_format` and `set_payload_json_format`. Defaults to True to post payload in format `application/json`. False will post the payload in format `text/plain`
 
 # Example Usage:
 
-The included python script `example-postcsv.py` takes a csv file with a header row and posts it to Observe.
+The included python script `example-postcsv.py` takes a csv file with a header row and posts it to Observe in JSON format.
 
 Usage: 
 
