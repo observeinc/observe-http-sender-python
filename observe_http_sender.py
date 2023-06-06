@@ -274,7 +274,7 @@ class ObserveHttpSender:
             Returns:
                 str: string of the attributes of the configured Observer HTTP receiver.
         """
-        return "Observer: Customer={0} Instance={1} Reachable={2} PopEmptyFields={3}".format(self.customer_id, self.observer_instance,self.check_connectivity(),self.pop_empty_fields)
+        return "Observer: Customer={0} Instance={1} Reachable={2} PopEmptyFields={3} PayloadModeJSON={4} ".format(self.customer_id, self.observer_instance,self.check_connectivity(),self._pop_empty_fields,self._payload_mode_json)
   
     @property 
     def retry_http_status_codes(self):
@@ -420,7 +420,8 @@ class ObserveHttpSender:
 
         response = dict() 
         observer_reachable = False
-        ACCEPTABLE_STATUS_CODES = [400,401,403]
+        ACCEPTABLE_STATUS_CODES = [200]
+        AUTHENTICATION_ERROR_STATUS_CODES = [400,401,403]
         HEATH_WARNING_STATUS_CODES = [500,503]
 
         try:
@@ -452,6 +453,9 @@ class ObserveHttpSender:
                     self.log.info("Observer is reachable. Customer=%s Instance=%s",self.customer_id, self.observer_instance)
                     self.log.warning("Connectivity Check: Customer=%s Instance=%s http_status_code=%s http_message=%s",self.customer_id, self.observer_instance,response_status_code,response_text)
                     observer_reachable = True
+                elif response_status_code in AUTHENTICATION_ERROR_STATUS_CODES:
+                    self.log.warning("Observer has potential authentication issues. Customer=%s Instance=%s",self.customer_id, self.observer_instance)
+                    self.log.error("Connectivity Check: Customer=%s Instance=%s http_status_code=%s http_message=%s",self.customer_id, self.observer_instance,response_status_code,response_text)
                 elif response_status_code in HEATH_WARNING_STATUS_CODES:
                     self.log.warning("Observer has potential health issues. Customer=%s Instance=%s",self.customer_id, self.observer_instance)
                     self.log.error("Connectivity Check: Customer=%s Instance=%s http_status_code=%s http_message=%s",self.customer_id, self.observer_instance,response_status_code,response_text)
@@ -558,5 +562,3 @@ class ObserveHttpSender:
 
         # Add new payload to batch accumulation.
         self.payload_queue.enqueue(payload)
-
-
