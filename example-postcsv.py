@@ -65,6 +65,9 @@ def main(filename):
     # Setup Observer and its logging level.
     observer = ObserveHttpSender(OBSERVE_CUSTOMER,OBSERVE_TOKEN,OBSERVE_DOMAIN)
     observer.log.setLevel(logging.INFO)
+    observer.set_post_path('/example/postcsv')
+
+    print(observer)
 
     # Check Observer for reachability
     observer_reachable =  observer.check_connectivity()

@@ -2,7 +2,7 @@
     Observer observation submission class to HTTP endpoint
 """
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 import json
 import logging
@@ -154,7 +154,9 @@ class ObserveHttpSender:
         get_pop_empty_fields() - returns(bool) - displays current value controlling removing empty/null fields
         set_payload_json_format(bool) - returns(none) - accepts bool value to control payload format is application/json (True) or text/plain (False). Default is True.
         get_payload_json_format() - returns(bool) - displays current value controlling removing empty/null fields
-        
+        set_post_path(string) - returns(none) - accepts string value optional post path segment
+        get_post_path() - returns(string) - displays current optional post path value
+ 
     
     Example Initialization:
         from observe_http_sender import ObserveHttpSender 
@@ -251,6 +253,9 @@ class ObserveHttpSender:
         # Set payload application/json mode
         self._payload_mode_json = True
 
+        # Set optional post path to default None. This appends to the post URL 
+        self._post_path = None
+
         # Set HTTP Controls
         self.http_raise_for_status = False
         self.http_retries = 3
@@ -274,7 +279,7 @@ class ObserveHttpSender:
             Returns:
                 str: string of the attributes of the configured Observer HTTP receiver.
         """
-        return "Observer: Customer={0} Instance={1} Reachable={2} PopEmptyFields={3} PayloadModeJSON={4} ".format(self.customer_id, self.observer_instance,self.check_connectivity(),self._pop_empty_fields,self._payload_mode_json)
+        return "Observer: Customer={0} Instance={1} Reachable={2} PopEmptyFields={3} PayloadModeJSON={4} PostPath={5}".format(self.customer_id, self.observer_instance,self.check_connectivity(),self._pop_empty_fields,self._payload_mode_json,self._post_path)
   
     @property 
     def retry_http_status_codes(self):
@@ -304,7 +309,12 @@ class ObserveHttpSender:
             Returns:
                 string: formed URL for the Observe API HTTP Post Data endpoint.
         """
-        url = "https://%s.collect.%s.com/v1/http" % (self.customer_id, self.observer_instance)
+        # Check if option path set. Append if present. 
+        if self._post_path is None:
+            url = "https://%s.collect.%s.com/v1/http" % (self.customer_id, self.observer_instance)
+        else:
+            url = "https://%s.collect.%s.com/v1/http%s" % (self.customer_id, self.observer_instance,self._post_path)
+
         return(url)
     
     @property 
@@ -344,6 +354,37 @@ class ObserveHttpSender:
 
         return (self._pop_empty_fields)
     
+    def set_post_path(self,value=None):
+        """Set optional post path segment value (string).
+
+        This appends the user specified path segment to the HTTP post url. It becomes a `path` value in the `EXTRA` field in the Datastream.
+        The post path option is a useful way to group data.
+
+        Parameters:
+                value (string): Expected format example `/orca/alerts`
+        Returns:
+                none
+
+        """
+
+        self._post_path = value
+        self.log.info("Observer Post Path Set: post_path={0}".format(value))
+
+    def get_post_path(self):
+        """Get the post path segment value (string).
+        
+            Default value is None
+            Value: `/orca/alerts`
+
+            Parameters:
+                none
+            Returns:
+                string: value of optional post path
+                
+        """
+
+        return (self._payload_mode_json)
+
     def set_pop_empty_fields(self,value=True):
         """Set pop empty fields mode (bool).
 
