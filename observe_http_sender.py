@@ -157,6 +157,10 @@ class ObserveHttpSender:
         get_payload_json_format() - returns(bool) - displays current value controlling removing empty/null fields
         set_post_path(string) - returns(none) - accepts string value optional post path segment
         get_post_path() - returns(string) - displays current optional post path value
+        set_concurrent_post_limit(int) - returns(none) - accepts value 1-5. Defaults to 5.
+        get_concurrent_post_limit() - returns(int) - displays current concurrent http post limit
+        set_post_max_byte_size(int) - returns(none) - accepts value 4000-10000. Defaults to 4000.
+        get_post_max_byte_size() - returns(int) - displays current http max bytes post size.
  
     
     Example Initialization:
