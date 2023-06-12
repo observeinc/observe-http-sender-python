@@ -1,6 +1,6 @@
 # Python Class for Sending Data to ObserveInc HTTP Endpoint
 
-Version/Date: 1.2.0 2023-06-09
+Version/Date: 1.3.0 2023-06-12
 
 ## Description:
 
@@ -30,16 +30,15 @@ Once installed you can start python try the following.
 
 The arguments needed to initialize an Observer:
 
-* OBSERVE_CUSTOMER -- The Observe customer ID - required
+* OBSERVE_URL -- The base Observe customer URL - required (Example: https://154418444508.observeinc.com/)
 * OBSERVE_TOKEN -- The configured Datastream API Token - required
-* OBSERVE_DOMAIN -- The observe instance domain. Defaults to observeinc - optional
 
 #### Python Usage:
 
     from observe_http_sender import ObserveHttpSender
 
     # Setup Observer and its logging level.
-    observer = ObserveHttpSender(OBSERVE_CUSTOMER,OBSERVE_TOKEN,OBSERVE_DOMAIN)
+    observer = ObserveHttpSender(OBSERVE_URL,OBSERVE_TOKEN)
     observer.log.setLevel(logging.INFO)
 
 ### Logging

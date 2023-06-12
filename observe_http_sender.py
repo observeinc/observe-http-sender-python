@@ -2,10 +2,12 @@
     Observer observation submission class to HTTP endpoint
 """
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 import json
 import logging
+import gzip
+import re
 
 import asyncio
 from aiohttp import ClientSession
@@ -142,9 +144,8 @@ class ObserveHttpSender:
     This is a class for posting JSON dictionary data to the Observe HTTP Endpoint.
       
    Arguments:
-        OBSERVE_CUSTOMER -- The Observe customer ID - required
+        OBSERVE_URL -- The Observe customer URL - required (Example: https://154418444508.observeinc.com/)
         OBSERVE_TOKEN -- The configured Datastream API Token - required
-        OBSERVE_DOMAIN -- The observe instance domain. Defaults to observeinc - optional
 
     Functions:
         check_connectivity() returns:(bool) - returns if configured Observe API instance is reachable
@@ -162,13 +163,6 @@ class ObserveHttpSender:
         from observe_http_sender import ObserveHttpSender 
         observer = ObserveHttpSender($OBSERVE_CUSTOMER$,$OBSERVE_DOMAIN$,$OBSERVE_TOKEN$)
     """
-
-    # Set Default batch max size for max bytes for the HTTP Endpoint.
-    # Auto flush will occur if next event payload will exceed limit.
-    MAX_BYTE_LENGTH = 4000
-  
-    # Number of "threads" used to send events to the endpoint (max concurrency).
-    THREAD_COUNT = 20
 
     # ASync Web Get Method
     async def _http_get_task(self,work_queue):
@@ -205,7 +199,7 @@ class ObserveHttpSender:
                    
                     if self._payload_mode_json:
                          # If True payload is expected to be form application/json
-                        payload_string = json.dumps(payload,default=str)
+                        payload_string = gzip.compress(json.dumps(payload).encode('utf-8'))
                     else:
                          # If False payload is expected to be form text/plain
                         payload_string = ''
@@ -223,23 +217,24 @@ class ObserveHttpSender:
 
         return()
 
-    def __init__(self,customer_id,token,observer_instance="observeinc"):
+    def __init__(self,obsv_url,token):
         """
         The constructor for the ObserveHttpSender class.
   
         Parameters:
-            customer_id (string): Required Observe Customer ID number.
+            obsv_url (string): Required Observe Customer URL.
             token (string): Required the API Token for the datastream to receive the data.
-            observe_instance (string): Optional domain of the Observe Instance for the customer. Default is observeinc.com.
         """
 
         self.log = logging.getLogger(u"OBSERVER_HTTP")
         self.log.setLevel(logging.INFO)
 
-        self.customer_id = customer_id
-        self.auth_token = token
-        self.observer_instance = observer_instance
+        url_regex_pattern = "(?i)https:\/\/(?P<customer_id>\d+)\.(?P<obsv_domain>.+)\.com"
 
+        self.customer_id = re.search(url_regex_pattern, obsv_url).group("customer_id")
+        self.observer_instance = re.search(url_regex_pattern, obsv_url).group("obsv_domain")
+        self.auth_token = token
+  
         if self.customer_id is None:
             raise(Exception("Observer Customer ID is missing."))
         if self.auth_token is None:
@@ -260,6 +255,13 @@ class ObserveHttpSender:
         self.http_raise_for_status = False
         self.http_retries = 3
 
+        # Set Default batch max size for max bytes for the HTTP Endpoint.
+        # Auto flush will occur if next event payload will exceed limit.
+        self.max_byte_length = 4000
+
+        # Number of "threads" used to send events to the endpoint (max concurrency).
+        self.concurrent_post_limit = 5
+
         # Create initial queue of payloads.
         self.payload_queue = _ObserveQueue()
 
@@ -267,7 +269,7 @@ class ObserveHttpSender:
         self.post_queue = _ObserveQueue()
 
         # Create async queue for http post.
-        self.work_queue = asyncio.Queue(maxsize=self.THREAD_COUNT)
+        self.work_queue = asyncio.Queue(maxsize=self.concurrent_post_limit)
 
         self.log.info("Observer Ready: Customer=%s Instance=%s",self.customer_id, self.observer_instance)
 
@@ -279,7 +281,7 @@ class ObserveHttpSender:
             Returns:
                 str: string of the attributes of the configured Observer HTTP receiver.
         """
-        return "Observer: Customer={0} Instance={1} Reachable={2} PopEmptyFields={3} PayloadModeJSON={4} PostPath={5}".format(self.customer_id, self.observer_instance,self.check_connectivity(),self._pop_empty_fields,self._payload_mode_json,self._post_path)
+        return "Observer: Customer={0} Instance={1} Reachable={2} PopEmptyFields={3} PayloadModeJSON={4} ConcurrentPostLimit={5} PostPath={6}".format(self.customer_id, self.observer_instance,self.check_connectivity(),self._pop_empty_fields,self._payload_mode_json,self.concurrent_post_limit,self._post_path)
   
     @property 
     def retry_http_status_codes(self):
@@ -295,6 +297,7 @@ class ObserveHttpSender:
         """
 
         status_codes = {408}    # 408 Request Timeout
+        status_codes.add(429)   # 429 Too Many Retries
         status_codes.add(500)   # 500 Internal Server Error
         status_codes.add(502)   # 502 Bad Gateway
         status_codes.add(503)   # 503 Service Unavailable
@@ -334,6 +337,7 @@ class ObserveHttpSender:
 
         headers = dict()
         headers["Authorization"] = "Bearer %s" % (self.auth_token)
+        headers["Content-Encoding"] = "gzip"
         if self._payload_mode_json:
             headers["Content-Type"] = "application/json"
         else:
@@ -400,7 +404,7 @@ class ObserveHttpSender:
         self._pop_empty_fields = value
         self.log.info("Observer Mode Set: pop_empty_fields={0}".format(value))
 
-    def get_payload_json_format(self):
+    def get_concurrent_post_limit(self):
         """Get payload plain JSON mode (bool).
         
             Default value is True - payload is expected to be a application/json dict.
@@ -410,6 +414,75 @@ class ObserveHttpSender:
                 none
             Returns:
                 bool: True/False control if payload is plain JSON dict.
+                
+        """
+
+        return (self.concurrent_post_limit)
+    
+    def set_concurrent_post_limit(self,value=5):
+        """Set Post Max Byte Size (int).
+
+        Parameters:
+                value (int): Sets the max byte size per HTTP post
+
+        Returns:
+                none
+
+        """
+
+        if value <= 1:
+            value = 1
+        if value >= 5:
+            value = 5
+
+        self.concurrent_post_limit = value
+
+        self.log.info("Observer Post Max Concurrent limit: concurrent_post_limit={0}".format(value))
+
+    def get_post_max_byte_size(self):
+        """Get payload plain JSON mode (bool).
+        
+            Default value is True - payload is expected to be a application/json dict.
+            Value: False - payload is expected to be text/plain.
+
+            Parameters:
+                none
+            Returns:
+                bool: True/False control if payload is plain JSON dict.
+                
+        """
+
+        return (self.max_byte_size)
+    
+    def set_post_max_byte_size(self,value=4000):
+        """Set Post Max Byte Size (int).
+
+        Parameters:
+                value (int): Sets the max byte size per HTTP post
+
+        Returns:
+                none
+
+        """
+
+        if value <= 4000:
+            value = 4000
+        if value >= 10000:
+            value = 10000
+
+        self.max_byte_size = value
+
+        self.log.info("Observer Post Max Byte Size: max_byte_size={0}".format(value))
+    
+    def get_payload_json_format(self):
+        """Get Post Max Byte Size (int).
+        
+            Value: int - valid range: 4000-10000
+
+            Parameters:
+                none
+            Returns:
+                int: max_byte_size
                 
         """
 
@@ -587,17 +660,18 @@ class ObserveHttpSender:
 
         # Convert payload to string of json.
         payloadString = json.dumps(payload,default=str)
+        
         # Measure length of the payload string.
         payloadLength = len(payloadString)
 
         # Check if next payload will exceed limits, post current batch and set next batch to the new payload that exceeded the limit.
-        if ((self.payload_queue.byte_size+payloadLength) > self.MAX_BYTE_LENGTH or (self.MAX_BYTE_LENGTH - self.payload_queue.byte_size) < payloadLength):
+        if ((self.payload_queue.byte_size+payloadLength) > self.max_byte_length or (self.max_byte_length - self.payload_queue.byte_size) < payloadLength):
             
             # Move batch to post queue.
             self.post_queue.enqueue([self.payload_queue.dequeue() for x in range(self.payload_queue.size)])
 
-            # If self.THREAD_COUNT batches have accumulated post flush them to Observe.
-            if self.post_queue.size >= self.THREAD_COUNT:
+            # If self.concurrent_post_limit batches have accumulated post flush them to Observe.
+            if self.post_queue.size >= self.concurrent_post_limit:
                 self.log.debug("Auto Flush: Posting the Batch.")
                 asyncio.run(self._post_batch())
 
