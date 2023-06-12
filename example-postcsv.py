@@ -36,26 +36,23 @@ def main(filename):
     """
     Example to set your Environment Variables in your terminal shell, add the values as appropriate:
 
-    export OBSERVE_CUSTOMER=
+    export OBSERVE_URL=
     export OBSERVE_TOKEN=
-    export OBSERVE_DOMAIN=
 
     """
 
     # Retrieve the API Configuration/Credential information from Environment Variables.
-    OBSERVE_CUSTOMER = os.getenv('OBSERVE_CUSTOMER')
+    OBSERVE_URL = os.getenv('OBSERVE_URL')
     OBSERVE_TOKEN = os.getenv('OBSERVE_TOKEN')
-    OBSERVE_DOMAIN = os.getenv('OBSERVE_DOMAIN')
+
 
     # Check for Observer Configuration Values.
     observer_exception = None
 
-    if OBSERVE_CUSTOMER is None:
-        observer_exception = Exception("Observer Customer ID is missing.")
+    if OBSERVE_URL is None:
+        observer_exception = Exception("Observer URL is missing.")
     if OBSERVE_TOKEN is None:
         observer_exception = (Exception("Observer Datastream API Token is missing."))
-    if OBSERVE_DOMAIN is None:
-        observer_exception = (Exception("Observer Instance Domain is missing."))
 
     # Raise Exception if Required Values are missing.
     if observer_exception:
@@ -63,11 +60,10 @@ def main(filename):
         raise(observer_exception)
 
     # Setup Observer and its logging level.
-    observer = ObserveHttpSender(OBSERVE_CUSTOMER,OBSERVE_TOKEN,OBSERVE_DOMAIN)
-    observer.log.setLevel(logging.INFO)
+    observer = ObserveHttpSender(OBSERVE_URL,OBSERVE_TOKEN)
+    observer.log.setLevel(logging.DEBUG)
     observer.set_post_path('/example/postcsv')
-
-    print(observer)
+    observer.set_post_max_byte_size(10000)
 
     # Check Observer for reachability
     observer_reachable =  observer.check_connectivity()
