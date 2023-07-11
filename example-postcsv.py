@@ -68,7 +68,7 @@ def main(filename):
     # Check Observer for reachability
     observer_reachable =  observer.check_connectivity()
     if observer_reachable is False:
-        raise(Exception("Observer Not Reachable: Customer=%s Instance=%s" % (OBSERVE_CUSTOMER,OBSERVE_DOMAIN)))
+        raise(Exception("Observer Not Reachable: URL=%s" % (OBSERVE_URL)))
         sys.exit(1)
     
     # Set timestamp and refine the data to post because our input file has no timestamp in it.

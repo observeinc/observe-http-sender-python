@@ -252,8 +252,8 @@ class ObserveHttpSender:
         # Set payload application/json mode
         self._payload_mode_json = True
 
-        # Set optional post path to default None. This appends to the post URL 
-        self._post_path = None
+        # Set optional post path to default /python/default. This appends to the post URL 
+        self._post_path = "/python/default"
 
         # Set HTTP Controls
         self.http_raise_for_status = False
