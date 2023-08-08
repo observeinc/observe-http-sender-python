@@ -199,6 +199,9 @@ class ObserveHttpSender:
             while not work_queue.empty():
                 try:
                     payload = await work_queue.get()
+                    if isinstance(payload, list) and len(payload) == 0:
+                        continue
+                    
                     self.log.debug("Payload JSON Mode:{0}".format(self._payload_mode_json))
                    
                     if self._payload_mode_json:
