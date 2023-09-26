@@ -21,7 +21,7 @@ def readme():
 
 # Setup for package
 setup(name='observe-http-sender',
-    python_requires='>=3.11',
+    python_requires='>=3.7',
     version=info['version'],
     description='Python class to send events to an Observe Inc Datastream.',
     long_description=readme(),
@@ -37,7 +37,7 @@ setup(name='observe-http-sender',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.7',
         'Framework :: AsyncIO',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Information Analysis',

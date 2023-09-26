@@ -8,7 +8,7 @@ import sys
 version = '1.3.0'
 __version__ = version
 
-MIN_PYTHON_VERSION = 3, 11
+MIN_PYTHON_VERSION = 3, 7
 MIN_PYTHON_VERSION_STR = '.'.join([str(v) for v in MIN_PYTHON_VERSION])
 
 if sys.version_info <= MIN_PYTHON_VERSION:
