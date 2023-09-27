@@ -374,7 +374,7 @@ class ObserveHttpSender:
         The post path option is a useful way to group data.
 
         Parameters:
-                value (string): Expected format example `/orca/alerts`
+                value (string): Expected format example `/vendor/type`
         Returns:
                 none
 
@@ -387,7 +387,7 @@ class ObserveHttpSender:
         """Get the post path segment value (string).
         
             Default value is None
-            Value: `/orca/alerts`
+            Value: `/python/default`
 
             Parameters:
                 none
