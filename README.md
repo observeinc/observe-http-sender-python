@@ -60,7 +60,7 @@ You may set a different logging level for the `ObserveHttpSender` class.
 * The `check_connectivity` method that is optional but recommended before attempting to submit large amounts of data to Observe. See example.py for use and docstrings on the method for details.
 * You MUST call the method `flush` before your code completes to ensure all remaining non batch posted data is sent to Observe.
 * Methods `get_pop_empty_fields` and `set_pop_empty_fields`. Defaults to True to remove empty/null fields from payloads to save ingestion cost.
-* Methods `get_payload_json_format` and `set_payload_json_format`. Defaults to True to post payload in format `application/json`. False will post the payload in format `text/plain`
+* Methods `get_payload_json_format` and `set_payload_json_format`. Defaults to True to post payload in format `application/json`. False will post the payload in format `text/plain` Set this at instantiation for text payloads.
 * Methods `get_post_path` and `set_post_path`. Defaults to None append an optional path segment example `/orca/alerts`. This will show in the Datastream EXTRAS field as `path`.
 
 # Example Usage:
