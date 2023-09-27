@@ -2,7 +2,7 @@
     Observer observation submission class to HTTP endpoint
 """
 
-__version__ = "1.3.1"
+__version__ = "1.3.2"
 
 import json
 import logging
