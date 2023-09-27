@@ -2,7 +2,7 @@
     Observer observation submission class to HTTP endpoint
 """
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 
 import json
 import logging
@@ -149,14 +149,15 @@ class ObserveHttpSender:
 
     Functions:
         check_connectivity() returns:(bool) - returns if configured Observe API instance is reachable
-        post_observation(dict) returns(none) - posts JSON dictionary to configured Observe HTTP API Endpoint
+        post_observation(dict OR str) returns(none) - posts JSON dictionary OR plain/text to configured Observe HTTP API Endpoint
+            NOTE: payload type is controlled by set_payload_json_format listed below and should be setup at instantiation
         flush() returns(none) - required call before exiting your code to flush any remaining batched data
         set_pop_empty_fields(bool) - returns(none) - accepts bool value to control if empty/null fields are removed. Default is True.
         get_pop_empty_fields() - returns(bool) - displays current value controlling removing empty/null fields
         set_payload_json_format(bool) - returns(none) - accepts bool value to control payload format is application/json (True) or text/plain (False). Default is True.
         get_payload_json_format() - returns(bool) - displays current value controlling removing empty/null fields
-        set_post_path(string) - returns(none) - accepts string value optional post path segment
-        get_post_path() - returns(string) - displays current optional post path value
+        set_post_path(str) - returns(none) - accepts string value optional post path segment
+        get_post_path() - returns(str) - displays current optional post path value
         set_concurrent_post_limit(int) - returns(none) - accepts value 1-5. Defaults to 5.
         get_concurrent_post_limit() - returns(int) - displays current concurrent http post limit
         set_post_max_byte_size(int) - returns(none) - accepts value 4000-10000. Defaults to 4000.
@@ -209,9 +210,10 @@ class ObserveHttpSender:
                         payload_string = gzip.compress(json.dumps(payload).encode('utf-8'))
                     else:
                          # If False payload is expected to be form text/plain
-                        payload_string = ''
                         for row in payload:
-                            payload_string = payload_string+'{0}\n'.format(row)
+                            if str(row):
+                                payload_string = '{0}'.format(str(row))
+                                payload_string = gzip.compress(payload_string.encode('utf-8'))
                         
                     if payload_string:
                         async with retry_client.post(url,headers=self.observer_headers,retry_options=retry_options,data=payload_string) as response:
@@ -394,7 +396,7 @@ class ObserveHttpSender:
                 
         """
 
-        return (self._payload_mode_json)
+        return (self._post_path)
 
     def set_pop_empty_fields(self,value=True):
         """Set pop empty fields mode (bool).
@@ -482,14 +484,15 @@ class ObserveHttpSender:
         self.log.info("Observer Post Max Byte Size: max_byte_size={0}".format(value))
     
     def get_payload_json_format(self):
-        """Get Post Max Byte Size (int).
+        """Get payload plain JSON mode (bool).
         
-            Value: int - valid range: 4000-10000
+            Value:  True - application/json
+                    False - plain/text
 
             Parameters:
                 none
             Returns:
-                int: max_byte_size
+                bool: payload format
                 
         """
 
@@ -651,10 +654,11 @@ class ObserveHttpSender:
         return()
 
     def post_observation(self,payload):
-        """Places the JSON payload into a batch queue for optimal HTTP Posting to Observe.
+        """Places the JSON/text payload into a batch queue for optimal HTTP Posting to Observe.
 
         Parameters:
-            payload (dict): The JSON dictionary of the data payload.
+            payload (dict): The JSON dictionary of the data payload if Payload Mode is True.
+            payload (text): The plain/text of the data payload if Payload Mode is False.
         Returns:
             none
         Notes:
