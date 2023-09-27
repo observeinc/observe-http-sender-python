@@ -2,7 +2,7 @@
     Observer observation submission class to HTTP endpoint
 """
 
-__version__ = "1.3.1"
+__version__ = "1.3.2"
 
 import json
 import logging
@@ -665,13 +665,24 @@ class ObserveHttpSender:
            Queue will auto flush as needed.
         """
 
+        if self._payload_mode_json and type(payload) is not dict:
+            self.log.warn("Ignoring Payload: set_payload_json_format:%s expepted type dict received type %s",self._payload_mode_json,str(type(payload)))
+            return
+        elif not self._payload_mode_json and type(payload) is not str:
+            self.log.warn("Ignoring Payload: set_payload_json_format:%s expepted type str received type %s",self._payload_mode_json,str(type(payload)))
+            return
+            
         # Pop empty fields if feature enabled and Payload mode JSON is True.
         if self._pop_empty_fields and self._payload_mode_json:
             payload = {k:payload.get(k) for k,v in payload.items() if v}
 
         # Convert payload to string of json.
         payloadString = json.dumps(payload,default=str)
-        
+
+        if not self._payload_mode_json and type(payload) is str:
+            # Enforce payload to string.
+            payloadString = str(payload)
+
         # Measure length of the payload string.
         payloadLength = len(payloadString)
 
