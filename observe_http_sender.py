@@ -323,9 +323,9 @@ class ObserveHttpSender:
         """
         # Check if option path set. Append if present. 
         if self._post_path is None:
-            url = "https://%s.collect.%s.com/v1/http" % (self.customer_id, self.observer_instance)
+            url = "https://%s.collect.%s.com/v2/http" % (self.customer_id, self.observer_instance)
         else:
-            url = "https://%s.collect.%s.com/v1/http%s" % (self.customer_id, self.observer_instance,self._post_path)
+            url = "https://%s.collect.%s.com/v2/http%s" % (self.customer_id, self.observer_instance,self._post_path)
 
         return(url)
     
@@ -585,7 +585,7 @@ class ObserveHttpSender:
                     self.log.error("Connectivity Check: Customer=%s Instance=%s http_status_code=%s http_message=%s",self.customer_id, self.observer_instance,response_status_code,response_text)
                 else:
                     self.log.warning("Observer is unreachable. Customer=%s Instance=%s",self.customer_id, self.observer_instance)
-                    self.log.error("HTTP status_code=%s message=%s Customer=%s Instance=%s",self.customer_id, self.observer_instance, response_status_code,response_text)
+                    self.log.error("HTTP status_code=%s message=%s Customer=%s Instance=%s", response_status_code, response_text, self.customer_id, self.observer_instance)
         except Exception as e:
             self.log.warn("Observer is unreachable. Customer=%s Instance=%s",self.customer_id, self.observer_instance)
             self.log.exception(e)
