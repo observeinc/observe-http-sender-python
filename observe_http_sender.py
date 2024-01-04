@@ -323,9 +323,9 @@ class ObserveHttpSender:
         """
         # Check if option path set. Append if present. 
         if self._post_path is None:
-            url = "https://%s.collect.%s.com/v2/http" % (self.customer_id, self.observer_instance)
+            url = "https://%s.collect.%s.com/v1/http" % (self.customer_id, self.observer_instance)
         else:
-            url = "https://%s.collect.%s.com/v2/http%s" % (self.customer_id, self.observer_instance,self._post_path)
+            url = "https://%s.collect.%s.com/v1/http%s" % (self.customer_id, self.observer_instance,self._post_path)
 
         return(url)
     
