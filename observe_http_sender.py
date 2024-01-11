@@ -666,10 +666,10 @@ class ObserveHttpSender:
         """
 
         if self._payload_mode_json and type(payload) is not dict:
-            self.log.warn("Ignoring Payload: set_payload_json_format:%s expepted type dict received type %s",self._payload_mode_json,str(type(payload)))
+            self.log.warn("Ignoring Payload: set_payload_json_format:%s expected type dict received type %s",self._payload_mode_json,str(type(payload)))
             return
         elif not self._payload_mode_json and type(payload) is not str:
-            self.log.warn("Ignoring Payload: set_payload_json_format:%s expepted type str received type %s",self._payload_mode_json,str(type(payload)))
+            self.log.warn("Ignoring Payload: set_payload_json_format:%s expected type str received type %s",self._payload_mode_json,str(type(payload)))
             return
             
         # Pop empty fields if feature enabled and Payload mode JSON is True.
