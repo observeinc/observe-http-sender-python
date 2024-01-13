@@ -238,7 +238,7 @@ class ObserveHttpSender:
         self.log = logging.getLogger(u"OBSERVER_HTTP")
         self.log.setLevel(logging.INFO)
 
-        url_regex_pattern = "(?i)https:\/\/(?P<customer_id>\d+)\.(?P<obsv_domain>.+)\.com"
+        url_regex_pattern = r"(?i)https:\/\/(?P<customer_id>\d+)\.(?P<obsv_domain>.+)\.com"
 
         self.customer_id = re.search(url_regex_pattern, obsv_url).group("customer_id")
         self.observer_instance = re.search(url_regex_pattern, obsv_url).group("obsv_domain")
