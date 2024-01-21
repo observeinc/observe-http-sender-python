@@ -1,10 +1,10 @@
 # Python Class for Sending Data to ObserveInc HTTP Endpoint
 
-Version/Date: 1.3.1 2023-12-29
+Version/Date: 1.3.2 2023-1-21
 
 ## Description:
 
-This is a python class for use with other python code to send events to an Observe Inc Datastream via the [API http event endpoint](https://docs.observeinc.com/en/latest/content/data-ingestion/endpoints/http.html).
+This is a python class to send events to an Observe Inc Datastream via the [HTTP API endpoint](https://docs.observeinc.com/en/latest/content/data-ingestion/endpoints/http.html).
 
 ## Using this Python Class
 

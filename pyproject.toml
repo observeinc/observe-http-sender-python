@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "observe-http-sender"
+version = "1.3.2"
+authors = [
+  { name="Observe Inc", email="devinfra@observeinc.com" },
+]
+description = "A Python class to send events to an Observe Inc Datastream via the HTTP API endpoint"
+readme = "README.md"
+requires-python = ">=3.7"
+dynamic = ["dependencies"]
+keywords = ['observeinc','http','ingest']
+classifiers = [
+    "Programming Language :: Python :: 3.7",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Framework :: AsyncIO',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Scientific/Engineering :: Information Analysis',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+
+[project.urls]
+Homepage = "https://github.com/observeinc/observe-http-sender-python"
+Issues = "https://github.com/observeinc/observe-http-sender-python/issues"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
