@@ -17,7 +17,7 @@ You will need to put this with any other code and import the class as needed.
 
 ### Usage: With pip3
 
-    pip3 install observe_http_sender@git+ssh://git@github.com/observeinc/observe-http-sender-python.git
+    pip3 install observe-http-sender
 
 Once installed you can start python try the following.
 
