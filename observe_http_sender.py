@@ -337,7 +337,7 @@ class ObserveHttpSender:
                 string: formed URL for the Observe API heath check endpoint.
         """
 
-        url = "https://%s.collect.%s.com/v1/health" % (self.customer_id, self.observer_instance)
+        url = "https://%s.%s.com/v1/health" % (self.customer_id, self.observer_instance)
         return(url)
 
     @property

@@ -5,7 +5,7 @@
 import sys
 
 #: The release version
-version = '1.3.2'
+version = '1.3.3'
 __version__ = version
 
 MIN_PYTHON_VERSION = 3, 7
