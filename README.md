@@ -1,6 +1,6 @@
 # Python Class for Sending Data to ObserveInc HTTP Endpoint
 
-Version/Date: 1.3.2 2023-1-21
+Version/Date: 1.3.3 2024-3-16
 
 ## Description:
 
