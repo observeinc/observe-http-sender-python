@@ -22,13 +22,15 @@ import logging
 import os
 import sys
 
-#Import Observe HTTP Sender Class
+# Import Observe HTTP Sender Class
 from observe_http_sender import ObserveHttpSender
+
 
 def main(filename):
 
     # Initialize the example script logging config.
-    logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %z')
+    logging.basicConfig(
+        format='%(asctime)s %(name)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %z')
     logger = logging.getLogger(u"OBSERVE_EXAMPLE")
     logger.setLevel(logging.INFO)
 
@@ -45,35 +47,35 @@ def main(filename):
     OBSERVE_URL = os.getenv('OBSERVE_URL')
     OBSERVE_TOKEN = os.getenv('OBSERVE_TOKEN')
 
-
     # Check for Observer Configuration Values.
     observer_exception = None
 
     if OBSERVE_URL is None:
         observer_exception = Exception("Observer URL is missing.")
     if OBSERVE_TOKEN is None:
-        observer_exception = (Exception("Observer Datastream API Token is missing."))
+        observer_exception = (
+            Exception("Observer Datastream API Token is missing."))
 
     # Raise Exception if Required Values are missing.
     if observer_exception:
         logger.exception(observer_exception)
-        raise(observer_exception)
+        raise (observer_exception)
 
     # Setup Observer and its logging level.
-    observer = ObserveHttpSender(OBSERVE_URL,OBSERVE_TOKEN)
+    observer = ObserveHttpSender(OBSERVE_URL, OBSERVE_TOKEN)
     observer.log.setLevel(logging.DEBUG)
     observer.set_post_path('/example/postcsv')
     observer.set_post_max_byte_size(10000)
 
     # Check Observer for reachability
-    observer_reachable =  observer.check_connectivity()
+    observer_reachable = observer.check_connectivity()
     if observer_reachable is False:
-        raise(Exception("Observer Not Reachable: URL=%s" % (OBSERVE_URL)))
+        raise (Exception("Observer Not Reachable: URL=%s" % (OBSERVE_URL)))
         sys.exit(1)
-    
+
     # Set timestamp and refine the data to post because our input file has no timestamp in it.
-    observe_post_time = str(round(time.time(),3))
-    metafields = {'timestamp':observe_post_time}
+    observe_post_time = str(round(time.time(), 3))
+    metafields = {'timestamp': observe_post_time}
 
     # Read and Post the file contents
     ioc_list = list()
@@ -96,13 +98,14 @@ def main(filename):
     except Exception as e:
         logger.exception(e)
 
-if __name__ ==  "__main__":
+
+if __name__ == "__main__":
 
     # Get Arguments
     args = sys.argv
 
     if len(args) == 1:
-        raise(Exception("Filename Required."))
+        raise (Exception("Filename Required."))
         sys.exit(1)
-    
+
     main(sys.argv[1])
